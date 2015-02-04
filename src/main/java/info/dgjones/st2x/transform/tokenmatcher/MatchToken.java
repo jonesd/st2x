@@ -49,8 +49,8 @@ public class MatchToken implements TokenMatcher {
 		}
 	}
 	
-	public boolean doesMatch(List tokens, int i) {
-		JavaToken javaToken = (JavaToken)tokens.get(i);
+	public boolean doesMatch(List<JavaToken> tokens, int i) {
+		JavaToken javaToken = tokens.get(i);
 		return (tokenClass.isAssignableFrom(javaToken.getClass())) && (tokenValue == null || tokenValue.matcher(javaToken.value).matches());
 	}
 

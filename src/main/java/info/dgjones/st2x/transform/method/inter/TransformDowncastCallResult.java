@@ -32,6 +32,7 @@ import info.dgjones.st2x.javatoken.JavaCallStart;
 import info.dgjones.st2x.javatoken.JavaCast;
 import info.dgjones.st2x.javatoken.JavaIdentifier;
 import info.dgjones.st2x.javatoken.JavaKeyword;
+import info.dgjones.st2x.javatoken.JavaToken;
 import info.dgjones.st2x.transform.method.AbstractMethodBodyTransformation;
 import info.dgjones.st2x.transform.tokenmatcher.TokenMatcher;
 import info.dgjones.st2x.transform.tokenmatcher.TokenMatcherFactory;
@@ -48,7 +49,7 @@ public class TransformDowncastCallResult extends AbstractMethodBodyTransformatio
 		return factory.token(JavaCallStart.class);
 	}
 
-	protected int transform(JavaMethod javaMethod, List tokens, int i) {
+	protected int transform(JavaMethod javaMethod, List<JavaToken> tokens, int i) {
 		JavaCodebase javaCodebase = javaMethod.javaClass.javaCodebase;
 
 		int base = i;

@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import info.dgjones.st2x.stscanner.ChunkDetails;
@@ -44,17 +45,17 @@ import info.dgjones.st2x.writer.ClassWriter;
 public class TranslateSmalltalk {
 	private static final char CHUNK_SEPARATOR = '!';
 
-	private static final Set SKIP_METHOD_CATEGORIES;
+	private static final Set<String> SKIP_METHOD_CATEGORIES;
 	static {
-		Set set = new HashSet();
+		Set<String> set = new HashSet<String>();
 		set.add("Heaper class methodsFor: 'stubble PROXY'!");
 		set.add("Heaper class methodsFor: 'locking'!");
 		SKIP_METHOD_CATEGORIES = Collections.unmodifiableSet(set);
 	}
 	
-	private static final Set SKIP_CLASSES;
+	private static final Set<String> SKIP_CLASSES;
 	static {
-		Set set = new HashSet();
+		Set<String> set = new HashSet<String>();
 		set.add("ExtractMethodConstant");
 		SKIP_CLASSES = Collections.unmodifiableSet(set);
 	}
@@ -66,7 +67,7 @@ public class TranslateSmalltalk {
 	 * Populate locations of classes which are not included in the supplied
 	 * source files. These files should be hand-created.
 	 */
-	protected void initializePackageLookup(Hashtable packageLookup) {
+	protected void initializePackageLookup(Map<String,String> packageLookup) {
 		packageLookup.put("IEEE32Array", "info.dgjones.abora.gold.collection.basic");
 		packageLookup.put("IEEE64Array", "info.dgjones.abora.gold.collection.basic");
 		packageLookup.put("Int32Array", "info.dgjones.abora.gold.collection.basic");
@@ -278,7 +279,7 @@ public class TranslateSmalltalk {
 		initializePackageLookup(javaCodebase.packageLookup);
 		initializeNonTranslatedClasses(javaCodebase);
 
-		List classToWrite = readAllSourcesFiles(sources, javaCodebase);
+		List<JavaClass> classToWrite = readAllSourcesFiles(sources, javaCodebase);
 		writeClasses(outputDirectoryName, classToWrite);
 	}
 
@@ -313,13 +314,13 @@ public class TranslateSmalltalk {
 //		sharedPtrArray.addMethod(m);
 	}
 	
-	private List readAllSourcesFiles(String[] sources, JavaCodebase javaCodebase) throws FileNotFoundException, IOException, Exception {
+	private List<JavaClass> readAllSourcesFiles(String[] sources, JavaCodebase javaCodebase) throws FileNotFoundException, IOException, Exception {
 
 		System.out.println();
 		System.out.println("Reading Source Files");
 		System.out.println("-------------------------------------------------------");
 
-		List classesToWrite = new ArrayList();
+		List<JavaClass> classesToWrite = new ArrayList<JavaClass>();
 
 		for (int i = 0; i < sources.length; i++) {
 			String filename = sources[i];
@@ -330,7 +331,7 @@ public class TranslateSmalltalk {
 		return classesToWrite;
 	}
 
-	private void readSourceFile(String source, JavaCodebase javaCodebase, List classesToWrite) throws FileNotFoundException, IOException, Exception {
+	private void readSourceFile(String source, JavaCodebase javaCodebase, List<JavaClass> classesToWrite) throws FileNotFoundException, IOException, Exception {
 
 		File smalltalkFile = new File(source);
 
@@ -443,7 +444,7 @@ public class TranslateSmalltalk {
 		}
 	}
 
-	private void writeClasses(String outputDirectoryName, List javaClasses) throws Exception {
+	private void writeClasses(String outputDirectoryName, List<JavaClass> javaClasses) throws Exception {
 	
 		parseClasses(javaClasses);
 		transformClasses(javaClasses);
@@ -456,10 +457,10 @@ public class TranslateSmalltalk {
 		System.out.println(title);
 		System.out.println("-------------------------------------------------------");
 	}
-	private void writeJavaClasses(String outputDirectoryName, List javaClasses) throws Exception {
+	private void writeJavaClasses(String outputDirectoryName, List<JavaClass> javaClasses) throws Exception {
 		logSectionHeader("Writing Classes");
-		for (Iterator iter = javaClasses.iterator(); iter.hasNext();) {
-			JavaClass javaClass = (JavaClass) iter.next();
+		for (Iterator<JavaClass> iter = javaClasses.iterator(); iter.hasNext();) {
+			JavaClass javaClass = iter.next();
 			//TODO consider skipping classes while being read in?
 			if (!SKIP_CLASSES.contains(javaClass.className)) {
 				ClassWriter classWriter = new ClassWriter(javaClass);
@@ -467,29 +468,29 @@ public class TranslateSmalltalk {
 			}
 		}
 	}
-	private void generateImports(List javaClasses) {
-		for (Iterator iter = javaClasses.iterator(); iter.hasNext();) {
-			JavaClass javaClass = (JavaClass) iter.next();
+	private void generateImports(List<JavaClass> javaClasses) {
+		for (Iterator<JavaClass> iter = javaClasses.iterator(); iter.hasNext();) {
+			JavaClass javaClass = iter.next();
 			javaClass.generateImports();
 		}
 	}
-	private void transformClasses(List javaClasses) {
+	private void transformClasses(List<JavaClass> javaClasses) {
 		logSectionHeader("Transforming Classes");
 
 		ClassTransformer classTransformer = new ClassTransformers();
-		for (Iterator iter = javaClasses.iterator(); iter.hasNext();) {
-			JavaClass javaClass = (JavaClass) iter.next();
+		for (Iterator<JavaClass> iter = javaClasses.iterator(); iter.hasNext();) {
+			JavaClass javaClass = iter.next();
 			System.out.println("Transform: "+javaClass.className);
 			classTransformer.transform(javaClass);
 		}
 	}
-	private void parseClasses(List javaClasses) throws Exception {
+	private void parseClasses(List<JavaClass> javaClasses) throws Exception {
 		logSectionHeader("Parsing Java");
 
 		ClassParser classParser = new ClassParser();
 
-		for (Iterator iter = javaClasses.iterator(); iter.hasNext();) {
-			JavaClass javaClass = (JavaClass) iter.next();
+		for (Iterator<JavaClass> iter = javaClasses.iterator(); iter.hasNext();) {
+			JavaClass javaClass = iter.next();
 			classParser.setJavaClass(javaClass);
 			System.out.println("Parse: "+javaClass.className);
 			classParser.parse();

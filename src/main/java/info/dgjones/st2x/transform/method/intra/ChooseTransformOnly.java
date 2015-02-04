@@ -33,6 +33,7 @@ import info.dgjones.st2x.javatoken.JavaCallStart;
 import info.dgjones.st2x.javatoken.JavaComment;
 import info.dgjones.st2x.javatoken.JavaIdentifier;
 import info.dgjones.st2x.javatoken.JavaStatementTerminator;
+import info.dgjones.st2x.javatoken.JavaToken;
 import info.dgjones.st2x.transform.method.AbstractMethodBodyTransformation;
 import info.dgjones.st2x.transform.tokenmatcher.TokenMatcher;
 import info.dgjones.st2x.transform.tokenmatcher.TokenMatcherFactory;
@@ -41,9 +42,9 @@ import info.dgjones.st2x.transform.tokenmatcher.TokenMatcherFactory;
 
 public class ChooseTransformOnly extends AbstractMethodBodyTransformation {
 
-	private static final List TRANSLATE_METHODS;
+	private static final List<String> TRANSLATE_METHODS;
 	static {
-		List list = new ArrayList();
+		List<String> list = new ArrayList<String>();
 		list.add("IntegerPos.actualHashForEqual");
 		list.add("IntegerPos.integerHash");
 		// Remove smalltalkOnly logging
@@ -108,9 +109,9 @@ public class ChooseTransformOnly extends AbstractMethodBodyTransformation {
 		TRANSLATE_METHODS = Collections.unmodifiableList(list);
 	}
 
-	private static final List SMALLTALK_METHODS;
+	private static final List<String> SMALLTALK_METHODS;
 	static {
-		List list = new ArrayList();
+		List<String> list = new ArrayList<String>();
 		list.add("WorksIniter.fetchNewRawSpace");
 		list.add("DiskManagerEmulsion.fetchNewRawSpace");
 		list.add("BeGrandMap.xuTime");
@@ -196,9 +197,9 @@ public class ChooseTransformOnly extends AbstractMethodBodyTransformation {
 		SMALLTALK_METHODS = Collections.unmodifiableList(list);
 	}
 
-	private static final List NEITHER_METHODS;
+	private static final List<String> NEITHER_METHODS;
 	static {
-		List list = new ArrayList();
+		List<String> list = new ArrayList<String>();
 		list.add("ExponentialHashMap.linkTimeNonInherited");
 		list.add("PrimIntegerSpec.PrimIntegerSpec");
 		
@@ -225,7 +226,7 @@ public class ChooseTransformOnly extends AbstractMethodBodyTransformation {
 				factory.token(JavaStatementTerminator.class));
 	}
 
-	protected int transform(JavaMethod javaMethod, List tokens, int i) {
+	protected int transform(JavaMethod javaMethod, List<JavaToken> tokens, int i) {
 		JavaIdentifier onlyType = (JavaIdentifier)tokens.get(i+1);
 		String call = onlyType.value;
 		boolean isTranslateOnly = call.equals("translateOnly");
@@ -255,7 +256,7 @@ public class ChooseTransformOnly extends AbstractMethodBodyTransformation {
 		return simpleBlock(javaMethod, tokens, i, call);
 	}
 		
-	private int acceptOnlyBlock(JavaMethod javaMethod, List tokens, int i) {
+	private int acceptOnlyBlock(JavaMethod javaMethod, List<JavaToken> tokens, int i) {
 		int blockStart = javaMethod.methodBody.findStartOfBlock(i);
 		tokens.remove(i+2);
 		tokens.remove(i+1);
@@ -265,7 +266,7 @@ public class ChooseTransformOnly extends AbstractMethodBodyTransformation {
 		return i - 1;
 	}
 
-	private int rejectOnlyBlock(JavaMethod javaMethod, List tokens, int i, String call) {
+	private int rejectOnlyBlock(JavaMethod javaMethod, List<JavaToken> tokens, int i, String call) {
 		int blockStart = javaMethod.methodBody.findStartOfBlock(i);
 		for (int j = i+2; j >= blockStart; --j) {
 			tokens.remove(j);
@@ -274,7 +275,7 @@ public class ChooseTransformOnly extends AbstractMethodBodyTransformation {
 		return blockStart;
 	}
 
-	private int simpleBlock(JavaMethod javaMethod, List tokens, int i, String call) {
+	private int simpleBlock(JavaMethod javaMethod, List<JavaToken> tokens, int i, String call) {
 		int blockStart = javaMethod.methodBody.findStartOfBlock(i);
 		tokens.remove(i+2);
 		tokens.remove(i+1);

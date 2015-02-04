@@ -36,6 +36,7 @@ import info.dgjones.st2x.javatoken.JavaCast;
 import info.dgjones.st2x.javatoken.JavaIdentifier;
 import info.dgjones.st2x.javatoken.JavaToken;
 import info.dgjones.st2x.javatoken.JavaType;
+import info.dgjones.st2x.stscanner.ChunkDetails;
 import info.dgjones.st2x.util.ToStringGenerator;
 
 public class JavaClass {
@@ -43,14 +44,14 @@ public class JavaClass {
 	public String superclassName;
 	public String classCategory;
 	protected String comment;
-	public Vector classQuotes = new Vector();
-	public Vector instanceMethodChunks = new Vector();
-	public Vector classMethodChunks = new Vector();
-	public final List fields = new ArrayList();
-	public final List methods = new ArrayList();
+	public Vector<ChunkDetails> classQuotes = new Vector<ChunkDetails>();
+	public Vector<ChunkDetails> instanceMethodChunks = new Vector<ChunkDetails>();
+	public Vector<ChunkDetails> classMethodChunks = new Vector<ChunkDetails>();
+	public final List<JavaField> fields = new ArrayList<JavaField>();
+	public final List<JavaMethod> methods = new ArrayList<JavaMethod>();
 	public final JavaCodebase javaCodebase;
-	protected final SortedSet imports = new TreeSet();
-	protected final List staticBlocks = new ArrayList();
+	protected final SortedSet<String> imports = new TreeSet<String>();
+	protected final List<JavaMethod> staticBlocks = new ArrayList<JavaMethod>();
 
 	static final String PACKAGE_SEPARATOR = ".";
 
@@ -72,8 +73,8 @@ public class JavaClass {
 	}
 
 	public String findTypeOfVariable(String name) {
-		for (Iterator iter = fields.iterator(); iter.hasNext();) {
-			JavaField javaField = (JavaField) iter.next();
+		for (Iterator<JavaField> iter = fields.iterator(); iter.hasNext();) {
+			JavaField javaField = iter.next();
 			if (javaField.name.equals(name)) {
 				return javaField.type;
 			}
@@ -98,7 +99,7 @@ public class JavaClass {
 	}
 
 	private void includeAnyReferencedTypes(MethodBody body) {
-		List tokens = body.tokens;
+		List<JavaToken> tokens = body.tokens;
 		for (int i = 0; i < tokens.size(); i++) {
 			JavaToken token = (JavaToken) tokens.get(i);
 			if ((token instanceof JavaIdentifier || token instanceof JavaType || token instanceof JavaCast || token instanceof JavaCallStart)
@@ -109,11 +110,11 @@ public class JavaClass {
 	}
 
 
-	public List getFields() {
+	public List<JavaField> getFields() {
 		return fields;
 	}
 	
-	public List getMethodBodies() {
+	public List<JavaMethod> getMethodBodies() {
 		return methods;
 	}
 
@@ -151,8 +152,8 @@ public class JavaClass {
 
 	public JavaMethod getMethod(String methodName) {
 		JavaMethod found = null;
-		for (Iterator iter = methods.iterator(); iter.hasNext();) {
-			JavaMethod method = (JavaMethod) iter.next();
+		for (Iterator<JavaMethod> iter = methods.iterator(); iter.hasNext();) {
+			JavaMethod method = iter.next();
 			if (method.name.equals(methodName)) {
 				if (found != null) {
 					throw new IllegalStateException("More than one match for: "+className+"."+methodName);
@@ -171,17 +172,17 @@ public class JavaClass {
 
 	public void generateImports() {
 		includeImportForType(superclassName);
-		for (Iterator iter = fields.iterator(); iter.hasNext();) {
-			JavaField field = (JavaField) iter.next();
+		for (Iterator<JavaField> iter = fields.iterator(); iter.hasNext();) {
+			JavaField field = iter.next();
 			includeImportForType(field.type);
 		}
 		includeAnyReferencedTypes(methods);
 		includeAnyReferencedTypes(staticBlocks);
 	}
 	
-	private void includeAnyReferencedTypes(List methodsList) {
-		for (Iterator iter = methodsList.iterator(); iter.hasNext();) {
-			JavaMethod method = (JavaMethod) iter.next();
+	private void includeAnyReferencedTypes(List<JavaMethod> methodsList) {
+		for (Iterator<JavaMethod> iter = methodsList.iterator(); iter.hasNext();) {
+			JavaMethod method = iter.next();
 			if (method.shouldInclude) {
 				includeAnyReferencedTypes(method);
 			}
@@ -192,8 +193,8 @@ public class JavaClass {
 		if (!method.shouldInclude) {
 			return;
 		}
-		for (Iterator iter = method.parameters.iterator(); iter.hasNext();) {
-			JavaField field = (JavaField) iter.next();
+		for (Iterator<JavaField> iter = method.parameters.iterator(); iter.hasNext();) {
+			JavaField field = iter.next();
 			includeImportForType(field.type);
 		}
 		includeImportForType(method.returnType);
@@ -205,8 +206,8 @@ public class JavaClass {
 		String returnTypeName = null;
 		JavaClass currentClass = this;
 		do {
-			for (Iterator iter = currentClass.methods.iterator(); iter.hasNext();) {
-				JavaMethod javaMethod = (JavaMethod) iter.next();
+			for (Iterator<JavaMethod> iter = currentClass.methods.iterator(); iter.hasNext();) {
+				JavaMethod javaMethod = iter.next();
 				if ((!onlyStatic || javaMethod.isStatic()) && javaMethod.name.equals(callName) && javaMethod.parameters.size() == numberOfArgs) {
 					String methodReturnType = javaMethod.returnType;
 					if (returnTypeName == null) {
@@ -227,8 +228,8 @@ public class JavaClass {
 		JavaMethod match = null;
 		JavaClass currentClass = this;
 		do {
-			for (Iterator iter = currentClass.methods.iterator(); iter.hasNext();) {
-				JavaMethod javaMethod = (JavaMethod) iter.next();
+			for (Iterator<JavaMethod> iter = currentClass.methods.iterator(); iter.hasNext();) {
+				JavaMethod javaMethod = iter.next();
 				if ((!onlyStatic || javaMethod.isStatic()) && javaMethod.name.equals(callName) && javaMethod.parameters.size() == numberOfArgs) {
 					if (match == null) {
 						match = javaMethod;
@@ -272,7 +273,7 @@ public class JavaClass {
 		this.comment = comment;
 	}
 	
-	public SortedSet getImports() {
+	public SortedSet<String> getImports() {
 		return Collections.unmodifiableSortedSet(imports);
 	}
 
@@ -284,17 +285,17 @@ public class JavaClass {
 		staticBlocks.add(0, staticBlock);
 	}
 
-	public List getStaticBlocks() {
+	public List<JavaMethod> getStaticBlocks() {
 		return Collections.unmodifiableList(staticBlocks);
 	}
 	
 	/**
 	 * Return the immediate subclasses
 	 */
-	public List subclasses() {
-		List subclasses = new ArrayList();
-		for (Iterator allClasses = javaCodebase.allClasses().iterator(); allClasses.hasNext();) {
-			JavaClass element = (JavaClass) allClasses.next();
+	public List<JavaClass> subclasses() {
+		List<JavaClass> subclasses = new ArrayList<JavaClass>();
+		for (Iterator<JavaClass> allClasses = javaCodebase.allClasses().iterator(); allClasses.hasNext();) {
+			JavaClass element = allClasses.next();
 			if (className.equals(element.superclassName)) {
 				subclasses.add(element);
 			}

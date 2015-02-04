@@ -70,9 +70,9 @@ public class ClassParser {
 	private JavaClass javaClass;
 	private MethodTransformation methodTransformer = new TransformIntraMethod();
 	
-	static final Map LOOKUP_TYPES;
+	static final Map<String,String> LOOKUP_TYPES;
 	static {
-		Map table = new Hashtable();
+		Map<String,String> table = new Hashtable<String,String>();
 		table.put("BooleanVar", "boolean");
 		table.put("Boolean", "boolean");
 		table.put("Integer", "int");
@@ -115,9 +115,9 @@ public class ClassParser {
 		LOOKUP_TYPES = Collections.unmodifiableMap(table);
 	}
 
-	static final Set JAVA_RESERVED_WORDS;
+	static final Set<String> JAVA_RESERVED_WORDS;
 	static {
-		Set set = new HashSet();
+		Set<String> set = new HashSet<String>();
 		set.add("abstract");
 		set.add("byte");
 		set.add("class");
@@ -143,16 +143,16 @@ public class ClassParser {
 		JAVA_RESERVED_WORDS = Collections.unmodifiableSet(set);
 	}
 
-	public static final Set NON_CONSTRUCTORS;
+	public static final Set<String> NON_CONSTRUCTORS;
 	static {
-		Set set = new HashSet();
+		Set<String> set = new HashSet<String>();
 		set.add("createAfter");
 		NON_CONSTRUCTORS = Collections.unmodifiableSet(set);
 	}
 	
-	public static final Map OVERRIDE_RETURN_TYPE;
+	public static final Map<String,String> OVERRIDE_RETURN_TYPE;
 	static {
-		Map table = new Hashtable();
+		Map<String,String> table = new Hashtable<String,String>();
 		table.put("actualHashForEqual", "int");
 		table.put("isEqual", "boolean");
 		table.put("isUnlocked", "boolean");
@@ -175,9 +175,9 @@ public class ClassParser {
 		OVERRIDE_RETURN_TYPE = Collections.unmodifiableMap(table);
 	}
 
-	public static final Map OVERRIDE_VOID_RETURN_TYPE;
+	public static final Map<String,String> OVERRIDE_VOID_RETURN_TYPE;
 	static {
-		Map table  = new Hashtable();
+		Map<String,String> table  = new Hashtable<String,String>();
 		table.put("stepper()", "Stepper");
 		table.put("isGenerated", "boolean");
 		table.put("SnarfPacker.conistentCount", "int");
@@ -241,9 +241,9 @@ public class ClassParser {
 		OVERRIDE_VOID_RETURN_TYPE = Collections.unmodifiableMap(table);
 	}
 
-	public static final Set OVERRIDE_VOID_RETURN_TYPE_WITH_CLASS;
+	public static final Set<String> OVERRIDE_VOID_RETURN_TYPE_WITH_CLASS;
 	static {
-		Set set  = new HashSet();
+		Set<String> set  = new HashSet<String>();
 		set.add("make");
 		//TODO support "make*"
 		set.add("makeIntegerVar");
@@ -259,9 +259,9 @@ public class ClassParser {
 		
 	}
 
-	static final Set OVERRIDE_STATIC;
+	static final Set<String> OVERRIDE_STATIC;
 	static {
-		Set set  = new HashSet();
+		Set<String> set  = new HashSet<String>();
 		set.add("asOop");
 //		set.add("getCategory");
 		set.add("passe");
@@ -337,8 +337,8 @@ public class ClassParser {
 		return type;
 	}
 
-	protected Vector parseTemps(SmalltalkScanner scanner) {
-		Vector tokens = new Vector();
+	protected Vector<JavaToken> parseTemps(SmalltalkScanner scanner) {
+		Vector<JavaToken> tokens = new Vector<JavaToken>();
 
 		while (scanner.token.tokenType != ScannerToken.TOKEN_TEMPS) {
 			String tempName = scanner.token.tokenString;
@@ -403,7 +403,7 @@ public class ClassParser {
 	}
 
 	protected String readBracketType(ChunkParser parser, String missingType) {
-		List typeWords = new ArrayList();
+		List<String> typeWords = new ArrayList<String>();
 		String word;
 		while (!(word = parser.nextWord()).equals("}")) {
 			typeWords.add(word);
@@ -430,9 +430,9 @@ public class ClassParser {
 		return type;
 	}
 
-	protected boolean expressionIsEmptyOrComments(Vector expression) {
-		for (Enumeration e = expression.elements(); e.hasMoreElements();) {
-			JavaToken token = (JavaToken) e.nextElement();
+	protected boolean expressionIsEmptyOrComments(Vector<JavaToken> expression) {
+		for (Enumeration<JavaToken> e = expression.elements(); e.hasMoreElements();) {
+			JavaToken token = e.nextElement();
 			if (!(token instanceof JavaComment)) {
 				return false;
 			}
@@ -440,10 +440,10 @@ public class ClassParser {
 		return true;
 	}
 
-	protected int findStartOfExpression(Vector expression) {
+	protected int findStartOfExpression(Vector<JavaToken> expression) {
 		int startIndex = 0;
 		while (startIndex < expression.size()) {
-			JavaToken test = (JavaToken) expression.elementAt(startIndex);
+			JavaToken test = expression.elementAt(startIndex);
 			if (((test instanceof JavaKeyword) && test.value.equals("return"))
 				|| ((test instanceof JavaIdentifier) && test.value.equals("return"))
 				|| (test instanceof JavaComment)
@@ -467,9 +467,9 @@ public class ClassParser {
 		return element;
 	}
 
-	protected void parseMethods(Vector methods, String modifiers) throws Exception {
-		for (Enumeration e = methods.elements(); e.hasMoreElements();) {
-			ChunkDetails methodDetails = (ChunkDetails) e.nextElement();
+	protected void parseMethods(Vector<ChunkDetails> methods, String modifiers) throws Exception {
+		for (Enumeration<ChunkDetails> e = methods.elements(); e.hasMoreElements();) {
+			ChunkDetails methodDetails = e.nextElement();
 			JavaMethod javaMethod = parseMethod(methodDetails, modifiers);
 			if (javaMethod != null) {
 				javaClass.methods.add(javaMethod);
@@ -500,7 +500,7 @@ public class ClassParser {
 	
 		String methodCategory = parseMethodCategory(methodDetails.description);
 		String methodName = "";
-		List parameterList = new ArrayList();
+		List<JavaField> parameterList = new ArrayList<JavaField>();
 		SmalltalkScanner scanner = new SmalltalkScanner(smalltalkMethod);
 		String returnType = parseReturnType(scanner);
 		if (scanner.token.tokenType == ScannerToken.TOKEN_KEYWORD) {
@@ -580,8 +580,8 @@ public class ClassParser {
 	public void parseClassDefinition() throws Exception {
 		//TODO seemed to have duplicate definitons of this; class & metaclass - just do this once
 		boolean hasParsedFirstCxxClassDescription = false;
-		for (Iterator iter = javaClass.classQuotes.iterator(); iter.hasNext();) {
-			ChunkDetails chunk = (ChunkDetails) iter.next();
+		for (Iterator<ChunkDetails> iter = javaClass.classQuotes.iterator(); iter.hasNext();) {
+			ChunkDetails chunk = iter.next();
 			if (chunk.contents.indexOf("instanceVariableNames:") != -1) {
 				parseInstanceVariableNamesChunk(chunk);
 			} else if (chunk.contents.indexOf("CxxSystemOrganization") != -1) {
@@ -600,14 +600,14 @@ public class ClassParser {
 		JavaMethod method = javaClass.getMethod("initializeSystemOrganization");
 		if (method == null) {
 			method = new JavaMethod("void", "initializeSystemOrganization");
-			method.methodBody = new MethodBody(new ArrayList());
+			method.methodBody = new MethodBody(new ArrayList<JavaToken>());
 			method.modifiers = "static ";
 			method.smalltalkSource = new SmalltalkSource();
 			method.smalltalkSource.context = "";
 			method.smalltalkSource.text = "Generated during transformation: AddMethod";
 			javaClass.addMethod(method);
 		}
-		List tokens = method.methodBody.tokens;
+		List<JavaToken> tokens = method.methodBody.tokens;
 		SmalltalkScanner scanner = new SmalltalkScanner(chunk.contents);
 		tokens.addAll(readMethodUnit(scanner).tokens);
 		tokens.add(new JavaStatementTerminator());
@@ -647,8 +647,8 @@ public class ClassParser {
 	public void parse() throws Exception {
 		parseClassDefinition();
 		
-		for (Iterator iter = javaClass.methods.iterator(); iter.hasNext();) {
-			JavaMethod method = (JavaMethod) iter.next();
+		for (Iterator<JavaMethod> iter = javaClass.methods.iterator(); iter.hasNext();) {
+			JavaMethod method = iter.next();
 			transformMethod(method);
 		}
 	}
@@ -658,8 +658,8 @@ public class ClassParser {
 	}
 
 	protected MethodBody readMethodUnit(SmalltalkScanner scanner) {
-		Vector tokens = new Vector();
-		Vector expression = new Vector();
+		Vector<JavaToken> tokens = new Vector<JavaToken>();
+		Vector<JavaToken> expression = new Vector<JavaToken>();
 
 		boolean atExpressionStart = true;
 		boolean endOfUnit = false;
@@ -929,7 +929,7 @@ scannerAdvance(scanner);
 				}
 				tokens.addAll(expression);
 
-				expression = new Vector();
+				expression = new Vector<JavaToken>();
 				endOfExpression = false;
 				if (cascadeBreak) {
 					atExpressionStart = false;
@@ -944,7 +944,7 @@ scannerAdvance(scanner);
 		return new MethodBody(tokens);
 	}
 	
-	private void parseArray(SmalltalkScanner scanner, Vector expression) {
+	private void parseArray(SmalltalkScanner scanner, Vector<JavaToken> expression) {
 		int maxDepth = 1;
 		int depth = 1;
 		expression.add(new JavaArrayInitializerStart());

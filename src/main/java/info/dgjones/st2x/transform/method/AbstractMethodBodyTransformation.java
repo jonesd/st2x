@@ -30,6 +30,7 @@ import java.util.List;
 
 import info.dgjones.st2x.JavaMethod;
 import info.dgjones.st2x.MethodBody;
+import info.dgjones.st2x.javatoken.JavaToken;
 import info.dgjones.st2x.transform.tokenmatcher.TokenMatcher;
 import info.dgjones.st2x.transform.tokenmatcher.TokenMatcherFactory;
 
@@ -49,7 +50,7 @@ public abstract class AbstractMethodBodyTransformation implements MethodTransfor
 	
 	public void transform(JavaMethod javaMethod) {
 		MethodBody methodBody = javaMethod.methodBody;
-		List methodBodyTokens = methodBody.tokens;
+		List<JavaToken> methodBodyTokens = methodBody.tokens;
 		for (int i = 0; i < methodBodyTokens.size(); i++) {
 			if (tokenMatcher.doesMatch(methodBodyTokens, i)) {
 				int nextI = transform(javaMethod, methodBodyTokens, i);
@@ -59,33 +60,33 @@ public abstract class AbstractMethodBodyTransformation implements MethodTransfor
 	}
 	
 	protected abstract TokenMatcher matchers(TokenMatcherFactory factory);
-	protected abstract int transform(JavaMethod javaMethod, List methodBodyTokens, int indexOfMatch);
+	protected abstract int transform(JavaMethod javaMethod, List<JavaToken> methodBodyTokens, int indexOfMatch);
 
-	protected String regularExpressionOr(Collection c1, Collection c2) {
+	protected String regularExpressionOr(Collection<String> c1, Collection<String> c2) {
 		//TODO insanity for c1.copyWithAll(c2)...
-		Object[] array1 = c1.toArray();
-		Object[] array2 = c2.toArray();
-		Object[] array12 = new Object[array1.length + array2.length];
+		String[] array1 = c1.toArray(new String[]{});
+		String[] array2 = c2.toArray(new String[]{});
+		String[] array12 = new String[array1.length + array2.length];
 		System.arraycopy(array1, 0, array12, 0, array1.length);
 		System.arraycopy(array2, 0, array12, array1.length, array2.length);
 		return regularExpressionOr(Arrays.asList(array12));
 	}
 
-	protected String regularExpressionOrTrailing(Collection c) {
-		List trailing = new ArrayList();
-		for (Iterator iter = c.iterator(); iter.hasNext();) {
-			String s = (String) iter.next();
+	protected String regularExpressionOrTrailing(Collection<String> c) {
+		List<String> trailing = new ArrayList<String>();
+		for (Iterator<String> iter = c.iterator(); iter.hasNext();) {
+			String s = iter.next();
 			int lastSplitter = s.lastIndexOf('.');
 			trailing.add(s.substring(lastSplitter+1));
 		}
 		return regularExpressionOr(trailing);
 	}
 
-	protected String regularExpressionOr(Collection c) {
+	protected String regularExpressionOr(Collection<String> c) {
 		StringBuffer regularExpression = new StringBuffer();
-		Iterator iterator = c.iterator();
+		Iterator<String> iterator = c.iterator();
 		while (iterator.hasNext()) {
-			regularExpression.append((String)iterator.next());
+			regularExpression.append(iterator.next());
 			if (iterator.hasNext()) {
 				regularExpression.append("|");
 			}

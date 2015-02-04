@@ -44,6 +44,7 @@ import info.dgjones.st2x.javatoken.JavaKeyword;
 import info.dgjones.st2x.javatoken.JavaParenthesisEnd;
 import info.dgjones.st2x.javatoken.JavaParenthesisStart;
 import info.dgjones.st2x.javatoken.JavaStatementTerminator;
+import info.dgjones.st2x.javatoken.JavaToken;
 import info.dgjones.st2x.javatoken.JavaType;
 import info.dgjones.st2x.transform.method.AbstractMethodBodyTransformation;
 import info.dgjones.st2x.transform.tokenmatcher.TokenMatcher;
@@ -53,9 +54,9 @@ import info.dgjones.st2x.transform.tokenmatcher.TokenMatcherFactory;
 
 public class TransformHandleDo extends AbstractMethodBodyTransformation {
 
-	private static final Map HANDLES;
+	private static final Map<String,String> HANDLES;
 	static {
-		Map map = new HashMap();
+		Map<String,String> map = new HashMap<String,String>();
 		map.put("TextyRcvr.blastIdentifierTooLong", "IDENTIFIER_TOO_LONG");
 		HANDLES = Collections.unmodifiableMap(map);
 	}
@@ -74,7 +75,7 @@ public class TransformHandleDo extends AbstractMethodBodyTransformation {
 			);
 	}
 
-	protected int transform(JavaMethod javaMethod, List tokens, int i) {
+	protected int transform(JavaMethod javaMethod, List<JavaToken> tokens, int i) {
 
 //		factory.token(JavaIdentifier.class),
 //		factory.token(JavaCallStart.class, "problems.*"),
@@ -93,12 +94,12 @@ public class TransformHandleDo extends AbstractMethodBodyTransformation {
 		}
 
 		boolean allBlasts = false;
-		Set signals = null;
+		Set<String> signals = null;
 		
 		if (problemsClassName.equals("Heaper") && problemsName.equals("problemsAllBlasts")) {
 			allBlasts = true;
 		} else if (HANDLES.containsKey(problemsClassName+"."+problemsName)) {
-			signals = new HashSet();
+			signals = new HashSet<String>();
 			signals.add(HANDLES.get(problemsClassName+"."+problemsName));
 		} else {
 			JavaMethod problemsMethod = javaMethod.getJavaCodebase().getJavaClass(problemsClassName).getMethodOrInherited(problemsName);
@@ -107,7 +108,7 @@ public class TransformHandleDo extends AbstractMethodBodyTransformation {
 				return i;
 			}
 			
-			signals = (Set)problemsMethod.getAnnotations().get(Annotation.PROBLEM_SIGNALS);
+			signals = (Set<String>)problemsMethod.getAnnotations().get(Annotation.PROBLEM_SIGNALS);
 			if (signals == null || signals.isEmpty()) {
 				System.out.println("--No registered signals found for handleDo: "+problemsClassName+"."+problemsName);
 				return i;
@@ -138,8 +139,8 @@ public class TransformHandleDo extends AbstractMethodBodyTransformation {
 			tokens.add(j++, new JavaKeyword("if"));
 			tokens.add(j++, new JavaParenthesisStart());
 	
-			for (Iterator iter = signals.iterator(); iter.hasNext();) {
-				String problem = (String) iter.next();
+			for (Iterator<String> iter = signals.iterator(); iter.hasNext();) {
+				String problem = iter.next();
 				tokens.add(j++, new JavaIdentifier(ClassParser.ABORA_RUNTIME_EXCEPTION_CLASS));
 				tokens.add(j++, new JavaIdentifier(problem));
 				tokens.add(j++, new JavaCallKeywordStart("equals"));;

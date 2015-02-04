@@ -38,8 +38,8 @@ public class JavaMethod extends JavaClassElement {
 	public SmalltalkSource smalltalkSource;
 	public String comment;
 	public JavaClass javaClass;
-	public List localVariables = new ArrayList();
-	public List parameters = new ArrayList();
+	public List<JavaField> localVariables = new ArrayList<JavaField>();
+	public List<JavaField> parameters = new ArrayList<JavaField>();
 	public boolean shouldInclude = true;
 	public boolean isDeprecated = false;
 	private final Annotation annotations = new Annotation(); 
@@ -65,9 +65,9 @@ public class JavaMethod extends JavaClassElement {
 		return type;
 	}
 
-	private String findTypeOfVariable(String variableName, List javaFields) {
-		for (Iterator iter = javaFields.iterator(); iter.hasNext();) {
-			JavaField javaField = (JavaField) iter.next();
+	private String findTypeOfVariable(String variableName, List<JavaField> javaFields) {
+		for (Iterator<JavaField> iter = javaFields.iterator(); iter.hasNext();) {
+			JavaField javaField = iter.next();
 			if (javaField.name.equals(variableName)) {
 				return javaField.type;
 			}
@@ -126,8 +126,8 @@ public class JavaMethod extends JavaClassElement {
 	private String getParameterDeclaration() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append('(');
-		for (Iterator iter = parameters.iterator(); iter.hasNext();) {
-			JavaField parameter = (JavaField) iter.next();
+		for (Iterator<JavaField> iter = parameters.iterator(); iter.hasNext();) {
+			JavaField parameter = iter.next();
 			buffer.append(parameter.type);
 			if(iter.hasNext()) {
 				buffer.append(',');

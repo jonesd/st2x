@@ -40,19 +40,19 @@ import info.dgjones.st2x.transform.method.MethodTransformation;
 
 public class TransformInterMethod implements MethodTransformation {
 
-	final private List transformers;
+	final private List<MethodTransformation> transformers;
 	
 	
 	public TransformInterMethod() {
 		this(createTransformers());
 	}
 	
-	public TransformInterMethod(List transformers) {
+	public TransformInterMethod(List<MethodTransformation> transformers) {
 		this.transformers = transformers;
 	}
 	
-	private static List createTransformers() {		
-		List transformers = new ArrayList();
+	private static List<MethodTransformation> createTransformers() {		
+		List<MethodTransformation> transformers = new ArrayList<MethodTransformation>();
 		
 		transformers.add(new TransformDowncastCallResult());
 		transformers.add(new TransformDowncastArgument());
@@ -63,8 +63,8 @@ public class TransformInterMethod implements MethodTransformation {
 	}
 	
 	public void transform(JavaMethod javaMethod) {
-		for (Iterator iter = transformers.iterator(); iter.hasNext();) {
-			MethodTransformation transformation = (MethodTransformation) iter.next();
+		for (Iterator<MethodTransformation> iter = transformers.iterator(); iter.hasNext();) {
+			MethodTransformation transformation = iter.next();
 			transformation.transform(javaMethod);
 		}
 	}

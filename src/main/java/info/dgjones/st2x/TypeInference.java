@@ -40,10 +40,10 @@ public class TypeInference {
 	
 	public String inferType(MethodBody methodBody, int start) {
 		String type = null;
-		List tokens = methodBody.tokens;
+		List<JavaToken> tokens = methodBody.tokens;
 		int i = start;
 		while (i < tokens.size()) {
-			JavaToken token = (JavaToken)tokens.get(i++);
+			JavaToken token = tokens.get(i++);
 			if (token instanceof JavaIdentifier) {
 				type = inferTypeOfIdentifier(token.value);
 				//TODO

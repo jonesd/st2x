@@ -35,6 +35,7 @@ import info.dgjones.st2x.javatoken.JavaCallKeywordStart;
 import info.dgjones.st2x.javatoken.JavaCallStart;
 import info.dgjones.st2x.javatoken.JavaIdentifier;
 import info.dgjones.st2x.javatoken.JavaKeyword;
+import info.dgjones.st2x.javatoken.JavaToken;
 import info.dgjones.st2x.transform.method.AbstractMethodBodyTransformation;
 import info.dgjones.st2x.transform.tokenmatcher.TokenMatcher;
 import info.dgjones.st2x.transform.tokenmatcher.TokenMatcherFactory;
@@ -43,9 +44,9 @@ import info.dgjones.st2x.transform.tokenmatcher.TokenMatcherFactory;
 
 public class TransformRaise extends AbstractMethodBodyTransformation {
 
-	private static final Map HANDLES;
+	private static final Map<String,String> HANDLES;
 	static {
-		Map map = new HashMap();
+		Map<String,String> map = new HashMap<String,String>();
 		map.put("TextyRcvr.blastIdentifierTooLong", "IDENTIFIER_TOO_LONG");
 		map.put("Binary2Rcvr.blastInvalidCharacter", "INVALID_CHARACTER");
 		map.put("TextyXmtr.blastInvalidCharacter", "INVALID_CHARACTER");
@@ -66,7 +67,7 @@ public class TransformRaise extends AbstractMethodBodyTransformation {
 			);
 	}
 
-	protected int transform(JavaMethod javaMethod, List tokens, int i) {
+	protected int transform(JavaMethod javaMethod, List<JavaToken> tokens, int i) {
 
 		String problemsClassName = ((JavaIdentifier)tokens.get(i)).value;
 		String problemsName = ((JavaCallStart)tokens.get(i+1)).value;

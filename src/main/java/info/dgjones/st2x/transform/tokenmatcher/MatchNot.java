@@ -24,6 +24,7 @@ package info.dgjones.st2x.transform.tokenmatcher;
 
 import java.util.List;
 
+import info.dgjones.st2x.javatoken.JavaToken;
 import info.dgjones.st2x.util.ToStringGenerator;
 
 
@@ -36,7 +37,7 @@ public class MatchNot implements TokenMatcher {
 		this.tokenMatcher = tokenMatcher;
 	}
 	
-	public boolean doesMatch(List tokens, int i) {
+	public boolean doesMatch(List<JavaToken> tokens, int i) {
 		return !tokenMatcher.doesMatch(tokens, i);
 	}
 	

@@ -58,7 +58,7 @@ return				factory.token(JavaCallKeywordStart.class);
 			//);
 	}
 
-	protected int transform(JavaMethod javaMethod, List tokens, int i) {
+	protected int transform(JavaMethod javaMethod, List<JavaToken> tokens, int i) {
 		JavaClass receiverClass = javaMethod.javaClass;
 		
 		if (i > 0 && tokens.get(i-1) instanceof JavaIdentifier) {
@@ -78,8 +78,8 @@ return				factory.token(JavaCallKeywordStart.class);
 
 		JavaCodebase javaCodebase = javaMethod.javaClass.javaCodebase;
 
-		List argumentTypes = new ArrayList();
-		List argumentStarts = new ArrayList();
+		List<String> argumentTypes = new ArrayList<String>();
+		List<Integer> argumentStarts = new ArrayList<Integer>();
 
 		int j = i + 1;
 		while (j < callEnd) {

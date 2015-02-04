@@ -34,9 +34,9 @@ import java.util.Set;
 
 public class JavaCodebase {
 
-	private final static Set PRIMITIVE_TYPES;
+	private final static Set<String> PRIMITIVE_TYPES;
 	static {
-		Set set = new HashSet();
+		Set<String> set = new HashSet<String>();
 		set.add("float");
 		set.add("double");
 		set.add("int");
@@ -47,9 +47,9 @@ public class JavaCodebase {
 		PRIMITIVE_TYPES = Collections.unmodifiableSet(set);
 	}
 	
-	private final static Set NARROWING_PRIMITIVE_CONVERSATIONS;
+	private final static Set<String> NARROWING_PRIMITIVE_CONVERSATIONS;
 	static {
-		Set set = new HashSet();
+		Set<String> set = new HashSet<String>();
 		set.add("byte-char");
 		
 		set.add("short-byte");
@@ -83,14 +83,14 @@ public class JavaCodebase {
 		NARROWING_PRIMITIVE_CONVERSATIONS = Collections.unmodifiableSet(set);
 	}
 	
-	private final Map javaClassLookup = new HashMap();
-	public final Hashtable packageLookup = new Hashtable();
+	private final Map<String,JavaClass> javaClassLookup = new HashMap<String,JavaClass>();
+	public final Map<String,String> packageLookup = new Hashtable<String,String>();
 
 	public JavaCodebase() {
 		super();
 	}
 	
-	public Collection allClasses() {
+	public Collection<JavaClass> allClasses() {
 		return javaClassLookup.values();
 	}
 	

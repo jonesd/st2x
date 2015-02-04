@@ -26,13 +26,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import info.dgjones.st2x.javatoken.JavaToken;
 import info.dgjones.st2x.util.ToStringGenerator;
 
 
 
 public class MatchAny implements TokenMatcher {
 
-	private final List matchers = new ArrayList();
+	private final List<TokenMatcher> matchers = new ArrayList<TokenMatcher>();
 	
 	public MatchAny() {
 		super();
@@ -42,9 +43,9 @@ public class MatchAny implements TokenMatcher {
 		matchers.add(matcher);
 	}
 	
-	public boolean doesMatch(List tokens, int i) {
-		for (Iterator iter = matchers.iterator(); iter.hasNext();) {
-			TokenMatcher tokenMatcher = (TokenMatcher) iter.next();
+	public boolean doesMatch(List<JavaToken> tokens, int i) {
+		for (Iterator<TokenMatcher> iter = matchers.iterator(); iter.hasNext();) {
+			TokenMatcher tokenMatcher = iter.next();
 			if (tokenMatcher.doesMatch(tokens, i)) {
 				return true;
 			}

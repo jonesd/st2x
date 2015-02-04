@@ -42,9 +42,9 @@ import info.dgjones.st2x.javatoken.JavaStatementTerminator;
 import info.dgjones.st2x.javatoken.JavaToken;
 
 public class MethodBody {
-	public List tokens;
+	public List<JavaToken> tokens;
 
-	public MethodBody(List tokens) {
+	public MethodBody(List<JavaToken> tokens) {
 		super();
 		this.tokens = tokens;
 	}
@@ -119,10 +119,10 @@ public class MethodBody {
 		return -1;
 	}
 
-	public JavaToken findExistingJavaCallKeyword(Vector expression) {
+	public JavaToken findExistingJavaCallKeyword(Vector<JavaToken> expression) {
 		JavaToken existingKeyword = null;
-		for (Enumeration e = expression.elements(); e.hasMoreElements();) {
-			JavaToken token = (JavaToken) e.nextElement();
+		for (Enumeration<JavaToken> e = expression.elements(); e.hasMoreElements();) {
+			JavaToken token = e.nextElement();
 			if (token instanceof JavaCallKeywordStart) {
 				existingKeyword = token;
 				break;
@@ -400,11 +400,11 @@ public class MethodBody {
 		throw new IllegalStateException("Could not find closing callend while calculating number of args");
 	}
 
-	public List extractCallArgExpressions(int callStart) {
+	public List<MethodBody> extractCallArgExpressions(int callStart) {
 		shouldMatch(callStart, JavaCallStart.class);
-		List args = new ArrayList();
+		List<MethodBody> args = new ArrayList<MethodBody>();
 		
-		List expression = new ArrayList();
+		List<JavaToken> expression = new ArrayList<JavaToken>();
 		int earlyCalls = 0;
 		for (int i = callStart + 1; i < tokens.size(); i++) {
 			JavaToken token = (JavaToken) tokens.get(i);
@@ -421,7 +421,7 @@ public class MethodBody {
 				}
 			} else if (token instanceof JavaCallArgumentSeparator && earlyCalls == 0) {
 				args.add(new MethodBody(expression));
-				expression = new ArrayList();
+				expression = new ArrayList<JavaToken>();
 			} else {
 				expression.add(token);
 			}
@@ -437,7 +437,7 @@ public class MethodBody {
 		int argumentStart = callStart+1;
 		int earlyCalls = 0;
 		for (int i = callStart + 1; i < tokens.size(); i++) {
-			JavaToken token = (JavaToken) tokens.get(i);
+			JavaToken token = tokens.get(i);
 			if (token instanceof JavaCallStart) {
 				earlyCalls++;
 			} else if (token instanceof JavaCallEnd) {
@@ -456,7 +456,7 @@ public class MethodBody {
 	}
 
 	public void copy(int sourceStartInclusive, int sourceEndExclusive, int newStart) {
-		List subList = new ArrayList(tokens.subList(sourceStartInclusive, sourceEndExclusive));
+		List<JavaToken> subList = new ArrayList<JavaToken>(tokens.subList(sourceStartInclusive, sourceEndExclusive));
 		tokens.addAll(newStart, subList);
 	}
 

@@ -55,7 +55,7 @@ public class TransformSignals extends AbstractMethodBodyTransformation {
 				);
 	}
 
-	protected int transform(JavaMethod javaMethod, List tokens, int i) {
+	protected int transform(JavaMethod javaMethod, List<JavaToken> tokens, int i) {
 		if (! ((i == 1 || i == 2) && ((JavaToken)tokens.get(0)).value.equals("return"))) {
 			return i;
 		}

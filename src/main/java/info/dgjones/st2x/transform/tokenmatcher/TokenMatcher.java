@@ -22,10 +22,12 @@
  */
 package info.dgjones.st2x.transform.tokenmatcher;
 
+import info.dgjones.st2x.javatoken.JavaToken;
+
 import java.util.List;
 
 
 
 public interface TokenMatcher {
-	public boolean doesMatch(List tokens, int i);
+	public boolean doesMatch(List<JavaToken> tokens, int i);
 }

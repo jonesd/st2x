@@ -30,7 +30,7 @@ import java.util.Map;
 public class Annotation {
 	
 	
-	private final Map annotations = new HashMap();
+	private final Map<String,Object> annotations = new HashMap<String,Object>();
 
 	//TODO convert to bloch enumeration
 	public static final String PROBLEM_SIGNALS = "Signals";
